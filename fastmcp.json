@@ -1,0 +1,16 @@
+{
+  "$schema": "https://gofastmcp.com/schemas/fastmcp.json",
+  "source": {
+    "type": "python",
+    "file": "src/my_mcp_server/server.py"
+  },
+  "environment": {
+    "type": "uv",
+    "python": ">=3.10",
+    "project": ".",
+    "editable": ["."]
+  },
+  "deployment": {
+    "transport": "stdio"
+  }
+}
