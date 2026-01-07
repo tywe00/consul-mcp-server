@@ -4,9 +4,18 @@ Tools are functions that perform actions or computations.
 They use type hints for automatic schema generation.
 """
 
-from typing import List, Optional
-from my_mcp_server.server import mcp
+## Tools: register_service, get_service_health, kv_get, kv_put, list_services, check_intentions
 
+from typing import List, Optional, Dict
+from my_mcp_server.server import mcp
+import httpx
+
+@mcp.tool()
+async def list_services(consul_url: str = "http://localhost:8500") -> Dict:
+    """List all registered services in Consul"""
+    async with httpx.AsyncClient() as client:
+        r = await client.get(f"{consul_url}/v1/catalog/services")
+        return r.json()
 
 @mcp.tool()
 def add_numbers(a: int, b: int) -> int:

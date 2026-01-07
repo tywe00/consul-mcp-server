@@ -2,6 +2,4 @@
 
 __version__ = "0.1.0"
 
-from my_mcp_server.server import mcp
-
-__all__ = ["mcp", "__version__"]
+__all__ = ["__version__"]

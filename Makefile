@@ -57,3 +57,8 @@ add:  ## Add a new dependency (usage: make add PACKAGE=package-name)
 
 add-dev:  ## Add a new dev dependency (usage: make add-dev PACKAGE=package-name)
 	uv add --dev $(PACKAGE)
+
+consul-run:	## Run consul docker container
+	docker stop consul-dev
+	docker rm consul-dev
+	docker run -d --name consul-dev -p 8500:8500 -p 8600:8600/udp hashicorp/consul:1.22 agent -dev -client=0.0.0.0 -ui
