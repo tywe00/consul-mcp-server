@@ -62,3 +62,7 @@ consul-run:	## Run consul docker container
 	docker stop consul-dev
 	docker rm consul-dev
 	docker run -d --name consul-dev -p 8500:8500 -p 8600:8600/udp hashicorp/consul:1.22 agent -dev -client=0.0.0.0 -ui
+
+consul-stop: ## Stop consul docker container
+	docker stop consul-dev
+	docker rm consul-dev
