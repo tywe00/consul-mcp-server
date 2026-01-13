@@ -54,3 +54,38 @@ async def test_fetch_data():
     tool = mcp._tool_manager._tools['fetch_data']
     result = await tool.fn("https://example.com")
     assert "example.com" in result
+
+
+@pytest.mark.asyncio
+async def test_register_service():
+    """Test the register_service tool."""
+    tool = mcp._tool_manager._tools['register_service']
+    result = await tool.fn(
+        id="test-service-1",
+        name="test-service",
+        address="127.0.0.1",
+        port=8080
+    )
+    assert "status" in result
+    assert result["service_id"] == "test-service-1"
+    assert result["status"] in ["success", "error"]
+    assert "message" in result
+    if result["status"] == "success":
+        assert result["http_status"] == 200
+        assert "registered successfully" in result["message"]
+
+
+@pytest.mark.asyncio
+async def test_deregister_service():
+    """Test the deregister_service tool."""
+    tool = mcp._tool_manager._tools['deregister_service']
+    result = await tool.fn(id="test-service-1")
+    assert "status" in result
+    assert result["service_id"] == "test-service-1"
+    assert result["status"] in ["success", "error"]
+    assert "message" in result
+    if result["status"] == "success":
+        assert result["http_status"] == 200
+        assert "deregistered successfully" in result["message"]
+
+
