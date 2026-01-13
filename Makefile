@@ -43,8 +43,11 @@ clean:  ## Clean build artifacts and cache
 run:  ## Run the MCP server
 	uv run python -m my_mcp_server.server
 
+run-http:  ## Run the MCP server with HTTP transport
+	uv run python -m my_mcp_server.server --transport http --port 8000
+
 inspector:  ## Run with MCP Inspector
-	npx @modelcontextprotocol/inspector uv run python -m my_mcp_server.server
+	npx @modelcontextprotocol/inspector uv run fastmcp run src/my_mcp_server/server.py
 
 build:  ## Build distribution packages
 	uv build
@@ -59,8 +62,8 @@ add-dev:  ## Add a new dev dependency (usage: make add-dev PACKAGE=package-name)
 	uv add --dev $(PACKAGE)
 
 consul-run:	## Run consul docker container
-	docker stop consul-dev
-	docker rm consul-dev
+	-@docker stop consul-dev
+	-@docker rm consul-dev
 	docker run -d --name consul-dev -p 8500:8500 -p 8600:8600/udp hashicorp/consul:1.22 agent -dev -client=0.0.0.0 -ui
 
 consul-stop: ## Stop consul docker container
