@@ -1,63 +1,56 @@
 """Tests for tools."""
 
 import pytest
-from my_mcp_server.tools.example_tools import (
-    add_numbers,
-    greet,
-    process_list,
-    list_services
-)
+from my_mcp_server.server import mcp
+
 
 @pytest.mark.asyncio
 async def test_list_services():
     """Test the list_services tool."""
-    func = list_services.fn
-    services = await func()
-    assert isinstance(services, dict)
-    assert len(services) >= 0  # Empty dict is valid if no services registered
+    tool = mcp._tool_manager._tools['list_services']
+    result = await tool.fn()
+    assert isinstance(result, dict)
 
 
 def test_add_numbers():
     """Test the add_numbers tool."""
-    func = add_numbers.fn
-    assert func(2, 3) == 5
-    assert func(-1, 1) == 0
-    assert func(0, 0) == 0
+    tool = mcp._tool_manager._tools['add_numbers']
+    assert tool.fn(2, 3) == 5
+    assert tool.fn(-1, 1) == 0
+    assert tool.fn(0, 0) == 0
 
 
 def test_greet():
     """Test the greet tool."""
-    func = greet.fn
+    tool = mcp._tool_manager._tools['greet']
     # Test informal greeting
-    result = func("Alice", formal=False)
+    result = tool.fn("Alice", formal=False)
     assert "Alice" in result
     assert "Hey" in result
     
     # Test formal greeting
-    result = func("Bob", formal=True)
+    result = tool.fn("Bob", formal=True)
     assert "Bob" in result
     assert "Good day" in result
 
 
 def test_process_list():
     """Test the process_list tool."""
-    func = process_list.fn
+    tool = mcp._tool_manager._tools['process_list']
     items = ["apple", "banana", "cherry"]
     
     # Test without prefix
-    result = func(items)
+    result = tool.fn(items)
     assert result == ["APPLE", "BANANA", "CHERRY"]
     
     # Test with prefix
-    result = func(items, prefix="fruit: ")
+    result = tool.fn(items, prefix="fruit: ")
     assert result == ["fruit: apple", "fruit: banana", "fruit: cherry"]
 
 
 @pytest.mark.asyncio
 async def test_fetch_data():
     """Test the async fetch_data tool."""
-    from my_mcp_server.tools.example_tools import fetch_data
-    
-    func = fetch_data.fn
-    result = await func("https://example.com")
+    tool = mcp._tool_manager._tools['fetch_data']
+    result = await tool.fn("https://example.com")
     assert "example.com" in result
