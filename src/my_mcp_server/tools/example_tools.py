@@ -18,6 +18,69 @@ def register_tools(mcp):
             return r.json()
 
     @mcp.tool()
+    async def register_service(id: str, name: str, address: str, port: int, consul_url: str = "http://localhost:8500") -> Dict:
+        """Register a service in Consul"""
+        try:
+            service_data = {
+                "ID": id,
+                "Name": name,
+                "Address": address,
+                "Port": port, 
+                "Check": {
+                    "HTTP": f"http://{address}:{port}/health",
+                    "Interval": "10s",
+                    "Timeout": "1s"
+                }
+            }
+            async with httpx.AsyncClient() as client:
+                r = await client.put(f"{consul_url}/v1/agent/service/register", json=service_data)
+                r.raise_for_status()
+                return {
+                    "status": "success",
+                    "message": f"Service '{name}' registered successfully",
+                    "service_id": id,
+                    "http_status": r.status_code
+                }
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "service_id": id
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to register service: {str(e)}",
+                "service_id": id
+            }
+    
+    @mcp.tool()
+    async def deregister_service(id: str, consul_url: str = "http://localhost:8500") -> Dict:
+        """Deregister a service from Consul"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.put(f"{consul_url}/v1/agent/service/deregister/{id}")
+                r.raise_for_status()
+                return {
+                    "status": "success",
+                    "message": f"Service deregistered successfully",
+                    "service_id": id,
+                    "http_status": r.status_code
+                }
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "service_id": id
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to deregister service: {str(e)}",
+                "service_id": id
+            }
+        
+    @mcp.tool()
     def add_numbers(a: int, b: int) -> int:
         """Add two numbers together.
         
