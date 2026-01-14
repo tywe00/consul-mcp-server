@@ -140,12 +140,7 @@ def register_tools(mcp):
             async with httpx.AsyncClient() as client:
                 r = await client.put(f"{consul_url}/v1/kv/{key}", content=value)
                 r.raise_for_status()
-                return {
-                    "status": "success",
-                    "message": f"Key '{key}' stored successfully",
-                    "key": key,
-                    "http_status": r.status_code
-                }
+                return r.json()
         except httpx.HTTPStatusError as e:
             return {
                 "status": "error",
@@ -203,6 +198,102 @@ def register_tools(mcp):
                 "key": key
             }
     
+    @mcp.tool()
+    async def list_intentions(consul_url: str = "http://localhost:8500") -> Dict:
+        """List all Connect intentions in Consul"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"{consul_url}/v1/connect/intentions")
+                r.raise_for_status()
+                return r.json()
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to get all intentions: {str(e)}"
+            }
+        
+    @mcp.tool()
+    async def create_intention(source: str, destination: str, action: str = "allow", consul_url: str = "http://localhost:8500") -> Dict:
+        """Create a Connect intention in Consul"""
+        try:
+            intention_data = {
+                "SourceName": source,
+                "DestinationName": destination,
+                "Action": action
+            }
+            async with httpx.AsyncClient() as client:
+                r = await client.post(f"{consul_url}/v1/connect/intentions", json=intention_data)
+                r.raise_for_status()
+                return r.json()
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "source": source,
+                "destination": destination
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to create intention: {str(e)}",
+                "source": source,
+                "destination": destination
+            }
+
+    @mcp.tool()
+    async def delete_intention(intention_id: str, consul_url: str = "http://localhost:8500") -> Dict:
+        """Delete a Connect intention in Consul"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.delete(f"{consul_url}/v1/connect/intentions/{intention_id}")
+                r.raise_for_status()
+                return r.json()
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "intention_id": intention_id
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to delete intention: {str(e)}",
+                "intention_id": intention_id
+
+            }
+        
+    @mcp.tool()
+    async def get_intention(intention_id: str, consul_url: str = "http://localhost:8500") -> Dict:
+        """Get a specific Connect intention by ID in Consul"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"{consul_url}/v1/connect/intentions/{intention_id}")
+                r.raise_for_status()
+                return r.json()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return {
+                    "status": "not_found",
+                    "message": f"Intention '{intention_id}' not found",
+                    "intention_id": intention_id
+                }
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "intention_id": intention_id
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to get intention: {str(e)}",
+                "intention_id": intention_id
+            }
+
     @mcp.tool()
     def add_numbers(a: int, b: int) -> int:
         """Add two numbers together.
