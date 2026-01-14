@@ -1,113 +1,84 @@
-# """Example prompts demonstrating different patterns.
-# 
-# Prompts are reusable templates that help LLMs interact effectively
-# with your server. They can be simple strings or structured messages.
-# """
-# 
-# from typing import List
-# from fastmcp.prompts import UserMessage, AssistantMessage
-# from my_mcp_server.server import mcp
-# 
-# 
-# # Simple string prompt
-# @mcp.prompt()
-# def analyze_code(code: str) -> str:
-#     """Prompt for code analysis.
-#     
-#     Simple prompts return a string that becomes a user message.
-#     
-#     Args:
-#         code: The code to analyze
-#     
-#     Returns:
-#         A prompt for analyzing the code
-#     """
-#     return f"""Please analyze this code for:
-# 1. Potential bugs or issues
-# 2. Code quality and best practices
-# 3. Suggestions for improvement
-# 
-# Code:
-# ```
-# {code}
-# ```
-# """
-# 
-# 
-# # Structured prompt with multiple messages
-# @mcp.prompt()
-# def debug_error(error_message: str, context: str) -> List:
-#     """Prompt for debugging errors.
-#     
-#     Structured prompts return a list of message objects for
-#     more control over the conversation flow.
-#     
-#     Args:
-#         error_message: The error message to debug
-#         context: Additional context about when the error occurred
-#     
-#     Returns:
-#         A structured conversation prompt
-#     """
-#     return [
-#         UserMessage(content="I encountered an error and need help debugging it."),
-#         UserMessage(content=f"Error message: {error_message}"),
-#         UserMessage(content=f"Context: {context}"),
-#         AssistantMessage(content="I'll help you debug this error. Let me analyze the information..."),
-#     ]
-# 
-# 
-# @mcp.prompt()
-# def review_document(document_type: str, key_points: str) -> str:
-#     """Prompt for document review.
-#     
-#     Args:
-#         document_type: Type of document (e.g., "technical report", "blog post")
-#         key_points: Key points to focus on during review
-#     
-#     Returns:
-#         A prompt for document review
-#     """
-#     return f"""Please review this {document_type} with focus on:
-# 
-# Key Points to Check:
-# {key_points}
-# 
-# Review Criteria:
-# - Clarity and readability
-# - Technical accuracy
-# - Organization and structure
-# - Grammar and style
-# - Completeness
-# 
-# Please provide specific, actionable feedback.
-# """
-# 
-# 
-# @mcp.prompt()
-# def explain_concept(concept: str, audience: str = "general") -> List:
-#     """Prompt for explaining technical concepts.
-#     
-#     Demonstrates prompts with default parameter values.
-#     
-#     Args:
-#         concept: The concept to explain
-#         audience: Target audience level (default: "general")
-#     
-#     Returns:
-#         A structured explanation prompt
-#     """
-#     audience_context = {
-#         "beginner": "Explain in very simple terms with basic analogies",
-#         "general": "Explain clearly with practical examples",
-#         "technical": "Explain with technical depth and precision",
-#         "expert": "Explain assuming advanced knowledge"
-#     }
-#     
-#     instruction = audience_context.get(audience, audience_context["general"])
-#     
-#     return [
-#         UserMessage(content=f"Please explain: {concept}"),
-#         UserMessage(content=f"Target audience: {audience}"),
-#         AssistantMessage(content=f"I'll explain {concept}. {instruction}."),
-#     ]
+"""Example prompts demonstrating different patterns.
+
+Prompts are reusable templates that help LLMs interact effectively
+with your server. They can be simple strings or structured messages.
+"""
+
+from typing import List
+from fastmcp.prompts import UserMessage, AssistantMessage
+from my_mcp_server.server import mcp
+
+
+@mcp.prompt()
+def setup_consul_service(service_name: str) -> str:
+    """Prompt for setting up a new Consul service.
+    
+    Args:
+        service_name: Name of the service to set up
+    
+    Returns:
+        A prompt for service setup guidance
+    """
+    return f"""Help me set up a new service '{service_name}' in Consul:
+
+1. What service ID should I use?
+2. What address and port should I configure?
+3. Should I add any health checks?
+4. Are there any best practices I should follow?
+
+Please provide specific recommendations."""
+
+
+@mcp.prompt()
+def debug_service_health(service_name: str) -> List:
+    """Prompt for debugging service health issues.
+    
+    Args:
+        service_name: Name of the service with health issues
+    
+    Returns:
+        A structured debugging prompt
+    """
+    return [
+        UserMessage(content=f"Service '{service_name}' is showing health check failures."),
+        UserMessage(content="Can you help me diagnose the issue?"),
+        AssistantMessage(content="I'll help you debug the service health. Let me check the current status..."),
+    ]
+
+
+@mcp.prompt()
+def configure_intentions(source: str, destination: str) -> str:
+    """Prompt for configuring Consul Connect intentions.
+    
+    Args:
+        source: Source service name
+        destination: Destination service name
+    
+    Returns:
+        A prompt for intention configuration
+    """
+    return f"""I need to configure service mesh intentions between '{source}' and '{destination}'.
+
+Please help me:
+1. Should I allow or deny this connection?
+2. Are there security considerations?
+3. What's the best practice for this service-to-service communication?
+4. Should I add any additional intentions?"""
+
+
+@mcp.prompt()
+def optimize_kv_structure(prefix: str) -> str:
+    """Prompt for optimizing Consul KV store structure.
+    
+    Args:
+        prefix: KV prefix to optimize
+    
+    Returns:
+        A prompt for KV optimization
+    """
+    return f"""Review my Consul KV store structure under '{prefix}' and suggest:
+
+1. Better key naming conventions
+2. Optimal hierarchy organization
+3. Data that should be moved or consolidated
+4. Security and access control recommendations"""

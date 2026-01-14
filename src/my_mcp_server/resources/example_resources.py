@@ -4,87 +4,77 @@ Resources expose data to LLMs. They should be read-only and
 not perform significant computation or have side effects.
 """
 
+import httpx
+import json
+
 def register_resources(mcp):
     """Register all resources with the MCP server."""
     
-    # Static resource - returns the same data every time
-    @mcp.resource("config://app")
-    def get_app_config() -> str:
-        """Get application configuration.
-        
-        Static resources use a simple URI without parameters.
-        """
-        return """
-        App Configuration:
-        - Version: 0.1.0
-        - Environment: development
-        - Debug: true
-        """
+    @mcp.resource("consul://services")
+    async def get_consul_services() -> str:
+        """Get all registered services from Consul."""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get("http://localhost:8500/v1/catalog/services")
+                r.raise_for_status()
+                services = r.json()
+                return json.dumps(services, indent=2)
+        except Exception as e:
+            return f"Error fetching services: {str(e)}"
 
-    # Dynamic resource (template) - uses parameters in the URI
-    @mcp.resource("user://{user_id}/profile")
-    def get_user_profile(user_id: str) -> str:
-        """Get user profile information.
-        
-        Dynamic resources use URI templates with parameters in curly braces.
-        FastMCP automatically handles these as MCP resource templates.
-        
-        Args:
-            user_id: The ID of the user
-        
-        Returns:
-            User profile information
-        """
-        # In a real implementation, you would fetch from a database
-        return f"""
-        User Profile (ID: {user_id}):
-        - Name: User {user_id}
-        - Email: user{user_id}@example.com
-        - Status: Active
-        """
+    @mcp.resource("consul://service/{service_name}/health")
+    async def get_service_health_resource(service_name: str) -> str:
+        """Get health status of a specific service."""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"http://localhost:8500/v1/health/service/{service_name}")
+                r.raise_for_status()
+                health = r.json()
+                return json.dumps(health, indent=2)
+        except Exception as e:
+            return f"Error fetching health for {service_name}: {str(e)}"
 
-    @mcp.resource("data://{category}/items")
-    def get_category_items(category: str) -> str:
-        """Get items in a specific category.
-        
-        Another example of a dynamic resource.
-        
-        Args:
-            category: The category name
-        
-        Returns:
-            List of items in the category
-        """
-        # Placeholder data
-        sample_items = {
-            "fruits": ["apple", "banana", "orange"],
-            "vegetables": ["carrot", "broccoli", "spinach"],
-            "dairy": ["milk", "cheese", "yogurt"],
-        }
-        
-        items = sample_items.get(category, [])
-        if items:
-            return f"Items in {category}:\n" + "\n".join(f"- {item}" for item in items)
-        return f"No items found in category: {category}"
+    @mcp.resource("consul://kv/{key}")
+    async def get_kv_resource(key: str) -> str:
+        """Get value from Consul KV store."""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"http://localhost:8500/v1/kv/{key}")
+                if r.status_code == 404:
+                    return f"Key '{key}' not found"
+                r.raise_for_status()
+                data = r.json()
+                if data:
+                    import base64
+                    value = base64.b64decode(data[0]["Value"]).decode("utf-8")
+                    return value
+                return f"Key '{key}' not found"
+        except Exception as e:
+            return f"Error fetching key {key}: {str(e)}"
 
-    # Example of async resource (useful for I/O operations)
-    @mcp.resource("database://{table}/schema")
-    async def get_table_schema(table: str) -> str:
-        """Get database table schema asynchronously.
-        
-        Async resources are useful for I/O-bound operations.
-        
-        Args:
-            table: The table name
-        
-        Returns:
-            Table schema information (placeholder)
-        """
-        # In a real implementation, you would query a database
-        return f"""
-        Schema for table '{table}':
-        - id: INTEGER PRIMARY KEY
-        - name: VARCHAR(255)
-        - created_at: TIMESTAMP
-        """
+    @mcp.resource("consul://intentions")
+    async def get_intentions_resource() -> str:
+        """Get all Connect intentions from Consul."""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get("http://localhost:8500/v1/connect/intentions")
+                r.raise_for_status()
+                intentions = r.json()
+                return json.dumps(intentions, indent=2)
+        except Exception as e:
+            return f"Error fetching intentions: {str(e)}"
+
+    @mcp.resource("consul://intention/{intention_id}")
+    async def get_intention_resource(intention_id: str) -> str:
+        """Get a specific Connect intention by ID."""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"http://localhost:8500/v1/connect/intentions/{intention_id}")
+                if r.status_code == 404:
+                    return f"Intention '{intention_id}' not found"
+                r.raise_for_status()
+                intention = r.json()
+                return json.dumps(intention, indent=2)
+        except Exception as e:
+            return f"Error fetching intention {intention_id}: {str(e)}"
 
