@@ -129,3 +129,56 @@ async def test_kv_get():
     if result["status"] == "success":
         assert "value" in result
         assert isinstance(result["value"], str)
+
+
+@pytest.mark.asyncio
+async def test_list_intentions():
+    """Test the list_intentions tool."""
+    tool = mcp._tool_manager._tools['list_intentions']
+    result = await tool.fn()
+    assert result is not None
+    if isinstance(result, dict) and "status" in result:
+        assert result["status"] in ["success", "error"]
+    else:
+        assert isinstance(result, (list, dict))
+
+
+@pytest.mark.asyncio
+async def test_create_intention():
+    """Test the create_intention tool."""
+    tool = mcp._tool_manager._tools['create_intention']
+    result = await tool.fn(source="web", destination="db", action="allow")
+    assert result is not None
+    if isinstance(result, dict) and "status" in result:
+        assert result["status"] in ["success", "error"]
+        if result["status"] == "error":
+            assert "source" in result
+            assert "destination" in result
+    else:
+        assert isinstance(result, dict)
+
+
+@pytest.mark.asyncio
+async def test_delete_intention():
+    """Test the delete_intention tool."""
+    tool = mcp._tool_manager._tools['delete_intention']
+    result = await tool.fn(intention_id="test-intention-id")
+    assert result is not None
+    if isinstance(result, dict) and "status" in result:
+        assert result["status"] in ["success", "error"]
+        if result["status"] == "error":
+            assert result["intention_id"] == "test-intention-id"
+    else:
+        assert isinstance(result, dict)
+
+
+@pytest.mark.asyncio
+async def test_get_intention():
+    """Test the get_intention tool."""
+    tool = mcp._tool_manager._tools['get_intention']
+    result = await tool.fn(intention_id="test-intention-id")
+    assert result is not None
+    assert isinstance(result, dict)
+    if "status" in result:
+        assert result["status"] in ["success", "error", "not_found"]
+        assert result["intention_id"] == "test-intention-id"
