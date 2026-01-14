@@ -89,3 +89,19 @@ async def test_deregister_service():
         assert "deregistered successfully" in result["message"]
 
 
+@pytest.mark.asyncio
+async def test_get_service_health():
+    """Test the get_service_health tool."""
+    tool = mcp._tool_manager._tools['get_service_health']
+    result = await tool.fn(service_name="test-service")
+    assert "status" in result
+    assert result["service_name"] == "test-service"
+    assert result["status"] in ["success", "error", "not_found"]
+    if result["status"] == "success":
+        assert "healthy" in result
+        assert "instance_count" in result
+        assert "instances" in result
+        assert isinstance(result["instances"], list)
+
+
+
