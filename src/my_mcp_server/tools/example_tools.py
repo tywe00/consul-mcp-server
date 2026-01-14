@@ -132,7 +132,77 @@ def register_tools(mcp):
                 "message": f"Failed to get service health: {str(e)}",
                 "service_name": service_name
             }
-        
+
+    @mcp.tool()
+    async def kv_put(key: str, value: str, consul_url: str = "http://localhost:8500") -> Dict:
+        """Put a key-value pair in Consul KV store"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.put(f"{consul_url}/v1/kv/{key}", content=value)
+                r.raise_for_status()
+                return {
+                    "status": "success",
+                    "message": f"Key '{key}' stored successfully",
+                    "key": key,
+                    "http_status": r.status_code
+                }
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "key": key
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to store key: {str(e)}",
+                "key": key
+            }
+
+    @mcp.tool()
+    async def kv_get(key: str, consul_url: str = "http://localhost:8500") -> Dict:
+        """Get a value from Consul KV store"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"{consul_url}/v1/kv/{key}")
+                r.raise_for_status()
+                data = r.json()
+
+                if not data:
+                    return {
+                        "status": "not_found",
+                        "message": f"Key '{key}' not found",
+                        "key": key
+                    }
+
+                # Consul returns base64 encoded value
+                import base64
+                value = base64.b64decode(data[0]["Value"]).decode("utf-8")
+
+                return {
+                    "status": "success",
+                    "key": key,
+                    "value": value
+                }
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return {
+                    "status": "not_found",
+                    "message": f"Key '{key}' not found",
+                    "key": key
+                }
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "key": key
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to get key: {str(e)}",
+                "key": key
+            }
+    
     @mcp.tool()
     def add_numbers(a: int, b: int) -> int:
         """Add two numbers together.
