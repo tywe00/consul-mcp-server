@@ -132,7 +132,7 @@ def register_tools(mcp):
                 "message": f"Failed to get service health: {str(e)}",
                 "service_name": service_name
             }
-        
+    
     @mcp.tool()
     def add_numbers(a: int, b: int) -> int:
         """Add two numbers together.
