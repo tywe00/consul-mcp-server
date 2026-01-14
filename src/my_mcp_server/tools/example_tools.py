@@ -79,6 +79,59 @@ def register_tools(mcp):
                 "message": f"Failed to deregister service: {str(e)}",
                 "service_id": id
             }
+
+    @mcp.tool()
+    async def get_service_health(service_name: str, consul_url: str = "http://localhost:8500") -> Dict:
+        """Get health status of a service from Consul"""
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"{consul_url}/v1/health/service/{service_name}")
+                r.raise_for_status()
+                health_data = r.json()
+                
+                if not health_data:
+                    return {
+                        "status": "not_found",
+                        "message": f"Service '{service_name}' not found",
+                        "service_name": service_name
+                    }
+                
+                # Check if all instances are healthy
+                all_healthy = all(
+                    all(check.get("Status") == "passing" for check in instance.get("Checks", []))
+                    for instance in health_data
+                )
+                
+                return {
+                    "status": "success",
+                    "service_name": service_name,
+                    "healthy": all_healthy,
+                    "instance_count": len(health_data),
+                    "instances": [
+                        {
+                            "id": inst["Service"]["ID"],
+                            "address": inst["Service"]["Address"],
+                            "port": inst["Service"]["Port"],
+                            "checks": [
+                                {"name": check["Name"], "status": check["Status"]}
+                                for check in inst.get("Checks", [])
+                            ]
+                        }
+                        for inst in health_data
+                    ]
+                }
+        except httpx.HTTPStatusError as e:
+            return {
+                "status": "error",
+                "message": f"HTTP error: {e.response.status_code}",
+                "service_name": service_name
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to get service health: {str(e)}",
+                "service_name": service_name
+            }
         
     @mcp.tool()
     def add_numbers(a: int, b: int) -> int:
