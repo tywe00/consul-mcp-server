@@ -89,3 +89,28 @@ async def test_deregister_service():
         assert "deregistered successfully" in result["message"]
 
 
+@pytest.mark.asyncio
+async def test_kv_put():
+    """Test the kv_put tool."""
+    tool = mcp._tool_manager._tools['kv_put']
+    result = await tool.fn(key="test/key", value="test-value")
+    assert "status" in result
+    assert result["key"] == "test/key"
+    assert result["status"] in ["success", "error"]
+    assert "message" in result
+    if result["status"] == "success":
+        assert result["http_status"] == 200
+        assert "stored successfully" in result["message"]
+
+
+@pytest.mark.asyncio
+async def test_kv_get():
+    """Test the kv_get tool."""
+    tool = mcp._tool_manager._tools['kv_get']
+    result = await tool.fn(key="test/key")
+    assert "status" in result
+    assert result["key"] == "test/key"
+    assert result["status"] in ["success", "error", "not_found"]
+    if result["status"] == "success":
+        assert "value" in result
+        assert isinstance(result["value"], str)
