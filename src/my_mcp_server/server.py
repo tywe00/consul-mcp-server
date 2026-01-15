@@ -1,24 +1,20 @@
-"""Main FastMCP server instance and configuration.
+"""Main FastMCP server instance and configuration."""
 
-This is the central module that creates the FastMCP server instance
-and imports all tools, resources, and prompts.
-"""
+import sys
+from pathlib import Path
 
-from fastmcp import FastMCP
+# Add src to path if not already there
+src_path = Path(__file__).parent.parent
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
-# Create the FastMCP server instance
-mcp = FastMCP(name="My MCP Server")
+# Import the singleton mcp instance
+from my_mcp_server.mcp_instance import mcp
 
-# Import and register tools and resources - must be after mcp creation
-from . import tools, resources
-tools.register_all(mcp)
-resources.register_all(mcp)
+__all__ = ["mcp"]
 
 def main() -> None:
-    """Entry point for running the MCP server."""
-    import sys
-    
-    # Check for command line arguments
+    """Entry point for running the MCP server."""    
     transport = "stdio"
     port = 8000
     

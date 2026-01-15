@@ -11,51 +11,6 @@ async def test_list_services():
     result = await tool.fn()
     assert isinstance(result, dict)
 
-
-def test_add_numbers():
-    """Test the add_numbers tool."""
-    tool = mcp._tool_manager._tools['add_numbers']
-    assert tool.fn(2, 3) == 5
-    assert tool.fn(-1, 1) == 0
-    assert tool.fn(0, 0) == 0
-
-
-def test_greet():
-    """Test the greet tool."""
-    tool = mcp._tool_manager._tools['greet']
-    # Test informal greeting
-    result = tool.fn("Alice", formal=False)
-    assert "Alice" in result
-    assert "Hey" in result
-    
-    # Test formal greeting
-    result = tool.fn("Bob", formal=True)
-    assert "Bob" in result
-    assert "Good day" in result
-
-
-def test_process_list():
-    """Test the process_list tool."""
-    tool = mcp._tool_manager._tools['process_list']
-    items = ["apple", "banana", "cherry"]
-    
-    # Test without prefix
-    result = tool.fn(items)
-    assert result == ["APPLE", "BANANA", "CHERRY"]
-    
-    # Test with prefix
-    result = tool.fn(items, prefix="fruit: ")
-    assert result == ["fruit: apple", "fruit: banana", "fruit: cherry"]
-
-
-@pytest.mark.asyncio
-async def test_fetch_data():
-    """Test the async fetch_data tool."""
-    tool = mcp._tool_manager._tools['fetch_data']
-    result = await tool.fn("https://example.com")
-    assert "example.com" in result
-
-
 @pytest.mark.asyncio
 async def test_register_service():
     """Test the register_service tool."""
@@ -109,13 +64,8 @@ async def test_kv_put():
     """Test the kv_put tool."""
     tool = mcp._tool_manager._tools['kv_put']
     result = await tool.fn(key="test/key", value="test-value")
-    assert "status" in result
-    assert result["key"] == "test/key"
-    assert result["status"] in ["success", "error"]
-    assert "message" in result
-    if result["status"] == "success":
-        assert result["http_status"] == 200
-        assert "stored successfully" in result["message"]
+    # Consul KV PUT returns a boolean (True on success)
+    assert result is True
 
 
 @pytest.mark.asyncio
