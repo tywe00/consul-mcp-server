@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Dict
 import httpx
-from my_mcp_server.mcp_instance import mcp
+from mcp_instance import mcp
 
 @mcp.tool()
 async def list_services(consul_url: str = "http://localhost:8500") -> Dict:

@@ -2,7 +2,7 @@
 
 from typing import List
 from mcp.types import PromptMessage
-from my_mcp_server.mcp_instance import mcp
+from mcp_instance import mcp
 
 @mcp.prompt()
 def setup_consul_service(service_name: str) -> str:

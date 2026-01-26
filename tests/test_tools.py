@@ -1,7 +1,7 @@
 """Tests for tools."""
 
 import pytest
-from my_mcp_server.server import mcp
+from server import mcp
 
 
 @pytest.mark.asyncio

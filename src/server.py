@@ -2,14 +2,23 @@
 
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Add src to path if not already there
-src_path = Path(__file__).parent.parent
+# Load environment variables
+load_dotenv()
+
+# Add src to path
+src_path = Path(__file__).parent
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 # Import the singleton mcp instance
-from my_mcp_server.mcp_instance import mcp
+from mcp_instance import mcp
+
+# Import tools, resources, and prompts to register them
+from tools import tools
+from resources import resources
+from prompts import prompts
 
 __all__ = ["mcp"]
 

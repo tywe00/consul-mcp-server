@@ -6,8 +6,8 @@ __version__ = "0.1.0"
 from .server import mcp
 
 # Import tools, resources, and prompts to register them
-from .tools import example_tools
-from .resources import example_resources
-from .prompts import example_prompts
+from .tools import tools
+from .resources import resources
+from .prompts import prompts
 
 __all__ = ["__version__", "mcp"]
