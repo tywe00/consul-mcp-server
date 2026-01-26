@@ -13,18 +13,13 @@ Get up and running with Consul MCP Server in 5 minutes!
 ```bash
 git clone https://github.com/yourusername/consul-mcp-server.git
 cd consul-mcp-server
-uv sync
+make sync
 ```
 
 ## Step 2: Start Consul
 
 ```bash
 make consul-run
-```
-
-Or manually:
-```bash
-docker run -d -p 8500:8500 --name=consul consul:latest agent -dev -ui -client=0.0.0.0
 ```
 
 Verify Consul is running: http://localhost:8500/ui
@@ -41,11 +36,6 @@ The defaults should work for local development.
 
 ```bash
 make run
-```
-
-Or:
-```bash
-consul-mcp-server
 ```
 
 ## Step 5: Test It Out
@@ -130,12 +120,13 @@ Once connected to an MCP client, try these commands:
 
 **Server won't start:**
 - Check Python version: `python --version` (needs 3.10+)
-- Verify installation: `uv sync`
+- Verify installation: `make sync`
 
 **Can't connect to Consul:**
 - Verify Consul is running: `docker ps | grep consul`
 - Check Consul UI: http://localhost:8500/ui
 - Verify CONSUL_URL in `.env`
+- Restart Consul: `make consul-stop && make consul-run`
 
 **Tools not working:**
 - Check Consul logs: `docker logs consul-dev`

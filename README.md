@@ -29,33 +29,18 @@ This MCP server exposes Consul's core functionality through three types of integ
 
 ### Prerequisites
 - Python 3.10 or higher
-- [uv](https://docs.astral.sh/uv/) (recommended) or pip
-- A running Consul instance (default: `http://localhost:8500`)
+- [uv](https://docs.astral.sh/uv/) (recommended)
+- Docker (for running Consul locally)
 
-### Using uv (recommended)
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/consul-mcp-server.git
-cd consul-mcp-server
-
-# Install with uv
-uv pip install -e .
-```
-
-### Using pip
+### Quick Install
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/consul-mcp-server.git
 cd consul-mcp-server
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
-pip install -e .
+make sync
 ```
 
 ## Configuration
@@ -74,10 +59,15 @@ LOG_LEVEL=INFO
 If you don't have Consul running, start it with Docker:
 
 ```bash
-docker run -d -p 8500:8500 --name=consul consul:latest agent -dev -ui -client=0.0.0.0
+make consul-run
 ```
 
 Access Consul UI at: http://localhost:8500/ui
+
+To stop Consul:
+```bash
+make consul-stop
+```
 
 ## Usage
 
@@ -85,12 +75,17 @@ Access Consul UI at: http://localhost:8500/ui
 
 #### Stdio Transport (default)
 ```bash
-consul-mcp-server
+make run
 ```
 
 #### HTTP Transport
 ```bash
-consul-mcp-server --transport http --port 8000
+make run-http
+```
+
+#### With MCP Inspector (for testing)
+```bash
+make inspector
 ```
 
 ### Using with Claude Desktop
@@ -123,36 +118,52 @@ This server implements the standard MCP protocol and works with any MCP-compatib
 
 ```bash
 # Install with dev dependencies
-uv pip install -e ".[dev]"
+make sync
+```
 
-# Or with pip
-pip install -e ".[dev]"
+### Available Commands
+
+Run `make help` to see all available commands:
+
+```bash
+make help          # Show all available commands
+make sync          # Install/update all dependencies
+make install       # Install production dependencies only
+make test          # Run tests
+make test-cov      # Run tests with coverage report
+make lint          # Check code quality
+make format        # Auto-format code
+make type-check    # Run type checker
+make run           # Run the server (stdio transport)
+make run-http      # Run the server (HTTP transport)
+make inspector     # Run with MCP Inspector for testing
+make consul-run    # Start Consul Docker container
+make consul-stop   # Stop Consul Docker container
+make clean         # Clean build artifacts and cache
+make build         # Build distribution packages
 ```
 
 ### Running Tests
 
 ```bash
 # Run all tests
-pytest
+make test
 
 # Run with coverage
-pytest --cov=src --cov-report=html
-
-# Run specific test file
-pytest tests/test_tools.py
+make test-cov
 ```
 
 ### Code Quality
 
 ```bash
 # Format code
-ruff format .
+make format
 
 # Lint code
-ruff check .
+make lint
 
 # Type checking
-mypy src/
+make type-check
 ```
 
 ### Project Structure
