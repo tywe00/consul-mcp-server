@@ -14,10 +14,10 @@ dev-install:  ## Install with development dependencies
 	uv sync --all-extras
 
 test:  ## Run tests
-	uv run pytest
+	PYTHONPATH=src:$$PYTHONPATH uv run pytest
 
 test-cov:  ## Run tests with coverage
-	uv run pytest --cov=my_mcp_server --cov-report=html --cov-report=term
+	PYTHONPATH=src:$$PYTHONPATH uv run pytest --cov=src --cov-report=html --cov-report=term
 
 lint:  ## Run linter
 	uv run ruff check .
@@ -41,13 +41,13 @@ clean:  ## Clean build artifacts and cache
 	rm -rf .venv
 
 run:  ## Run the MCP server
-	uv run python -m my_mcp_server.server
+	uv run python src/server.py
 
 run-http:  ## Run the MCP server with HTTP transport
-	uv run python -m my_mcp_server.server --transport http --port 8000
+	uv run python src/server.py --transport http --port 8000
 
 inspector:  ## Run with MCP Inspector
-	npx @modelcontextprotocol/inspector uv run fastmcp run src/my_mcp_server/server.py
+	npx @modelcontextprotocol/inspector uv run fastmcp run src/server.py
 
 build:  ## Build distribution packages
 	uv build

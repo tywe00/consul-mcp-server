@@ -2,7 +2,7 @@
   "$schema": "https://gofastmcp.com/schemas/fastmcp.json",
   "source": {
     "type": "python",
-    "file": "src/my_mcp_server/server.py"
+    "file": "src/server.py"
   },
   "environment": {
     "type": "uv",
