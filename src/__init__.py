@@ -1,13 +1,12 @@
-"""My MCP Server - A FastMCP server for experimentation and learning."""
+"""consul-mcp-server - A FastMCP server for HashiCorp Consul integration."""
 
 __version__ = "0.1.0"
 
 # Import server to create mcp instance
+# Import modules for side effects (decorator registration)
+from .prompts import prompts  # noqa: F401
+from .resources import resources  # noqa: F401
 from .server import mcp
-
-# Import tools, resources, and prompts to register them
-from .tools import tools
-from .resources import resources
-from .prompts import prompts
+from .tools import tools  # noqa: F401
 
 __all__ = ["__version__", "mcp"]

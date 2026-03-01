@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # HashiCorp Consul server
+  consul:
+    image: hashicorp/consul:1.22
+    container_name: consul-dev
+    command: agent -dev -client=0.0.0.0 -ui
+    ports:
+      - "8500:8500"  # HTTP API and UI
+      - "8600:8600/udp"  # DNS
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - consul-network
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Consul MCP Server
+  consul-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: consul-mcp-server
+    depends_on:
+      consul:
+        condition: service_healthy
+    environment:
+      - CONSUL_URL=http://consul:8500
+      - LOG_LEVEL=INFO
+    networks:
+      - consul-network
+    stdin_open: true  # Keep stdin open for stdio transport
+    tty: true         # Allocate a pseudo-TTY
+    # For HTTP transport, uncomment the following:
+    # ports:
+    #   - "8000:8000"
+    # command: ["--transport", "http", "--port", "8000"]
+
+networks:
+  consul-network:
+    driver: bridge

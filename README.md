@@ -36,7 +36,7 @@ This MCP server exposes Consul's core functionality through three types of integ
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/consul-mcp-server.git
+git clone https://github.com/tywe00/consul-mcp-server.git
 cd consul-mcp-server
 
 # Install dependencies
@@ -288,6 +288,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- Report issues: [GitHub Issues](https://github.com/yourusername/consul-mcp-server/issues)
+- Report issues: [GitHub Issues](https://github.com/tywe00/consul-mcp-server/issues)
 - Consul Documentation: https://www.consul.io/docs
 - MCP Documentation: https://modelcontextprotocol.io

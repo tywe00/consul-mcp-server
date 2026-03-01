@@ -2,4 +2,4 @@
 
 from fastmcp import FastMCP
 
-mcp = FastMCP(name="My MCP Server")
+mcp = FastMCP(name="consul-mcp-server")

@@ -11,7 +11,7 @@ Get up and running with Consul MCP Server in 5 minutes!
 ## Step 1: Clone and Install
 
 ```bash
-git clone https://github.com/yourusername/consul-mcp-server.git
+git clone https://github.com/tywe00/consul-mcp-server.git
 cd consul-mcp-server
 make sync
 ```

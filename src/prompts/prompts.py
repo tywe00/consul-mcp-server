@@ -1,8 +1,10 @@
-"""Example prompts demonstrating different patterns."""
+"""Consul MCP prompts for guided service setup, health debugging, intentions configuration, and KV optimization."""
 
-from typing import List
+
 from mcp.types import PromptMessage
+
 from mcp_instance import mcp
+
 
 @mcp.prompt()
 def setup_consul_service(service_name: str) -> str:
@@ -16,14 +18,21 @@ def setup_consul_service(service_name: str) -> str:
 
 Please provide specific recommendations."""
 
+
 @mcp.prompt()
-def debug_service_health(service_name: str) -> List[PromptMessage]:
+def debug_service_health(service_name: str) -> list[PromptMessage]:
     """Prompt for debugging service health issues."""
     return [
-        PromptMessage(role="user", content=f"Service '{service_name}' is showing health check failures."),
+        PromptMessage(
+            role="user", content=f"Service '{service_name}' is showing health check failures."
+        ),
         PromptMessage(role="user", content="Can you help me diagnose the issue?"),
-        PromptMessage(role="assistant", content="I'll help you debug the service health. Let me check the current status..."),
+        PromptMessage(
+            role="assistant",
+            content="I'll help you debug the service health. Let me check the current status...",
+        ),
     ]
+
 
 @mcp.prompt()
 def configure_intentions(source: str, destination: str) -> str:
@@ -35,6 +44,7 @@ Please help me:
 2. Are there security considerations?
 3. What's the best practice for this service-to-service communication?
 4. Should I add any additional intentions?"""
+
 
 @mcp.prompt()
 def optimize_kv_structure(prefix: str) -> str:
