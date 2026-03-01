@@ -5,7 +5,11 @@ import os
 
 import httpx
 
-from mcp_instance import mcp
+# Handle both package and direct imports
+try:
+    from ..mcp_instance import mcp
+except ImportError:
+    from mcp_instance import mcp  # type: ignore
 
 CONSUL_URL = os.getenv("CONSUL_URL", "http://localhost:8500")
 
